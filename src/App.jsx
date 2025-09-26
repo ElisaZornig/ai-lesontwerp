@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import HelperVideo from './HelperVideo';
+import teacher from './assets/images/sadteacher.gif'
 
 function ProgressBar({ step }) {
     const progress = ((step - 1) / 5) * 100; // intro = stap 0
@@ -149,7 +150,7 @@ function App() {
                         link="https://chat.openai.com"
                         title = "Welkom bij de AI Lesmaker! 🎉"
                         info="Misschien heb je al kennis van AI, misschien weet je net wat chatGPT is, deze activiteit is voor iedereen! Vandaag ga je door middel van het maken van een lesontwerp kennismaken met verschillende AI-tools. <br></br>Het is wel belangrijk dat je ingelogd ben in chatgpt of een ander AI-tool. Als je copilot op je laptop hebt staan kun je dat gebruiken. Je kunt chatgpt op je telefoon gebruiken of op je laptop, maar zorg dat je ingelogd bent."
-                        image = "./images/sadteacher.gif"
+                        image = {teacher}
                     >
 
 
