@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
 
-  "homepage": "https://ElisaZornig.github.io/ai-ontwerp/",
+  "homepage": "https://elisazornig.github.io/ai-lesontwerp/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
