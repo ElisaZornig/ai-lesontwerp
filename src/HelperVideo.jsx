@@ -21,7 +21,6 @@ export default function HelperVideo({ src }) {
             <video
                 id="helper-video"
                 src={src}
-                autoPlay
                 loop
                 className="w-full h-full object-cover"
             />
