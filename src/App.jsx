@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import HelperVideo from './HelperVideo';
 import teacher from './assets/images/sadteacher.gif'
+import helper1 from './assets/videos/helper.mp4'
 
 function ProgressBar({ step }) {
     const progress = ((step - 1) / 5) * 100; // intro = stap 0
@@ -16,13 +17,13 @@ function ProgressBar({ step }) {
     );
 }
 
-function Step({ number, title, info, link, input, setInput, onNext, onBack, children, image }) {
+function Step({ number, title, info, link, input, setInput, onNext, onBack, children, image, onStart }) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
+            initial={{opacity: 0, y: 20}}
+            animate={{opacity: 1, y: 0}}
+            exit={{opacity: 0, y: -20}}
+            transition={{duration: 0.5}}
             className="bg-white rounded-2xl shadow-lg p-8 mb-6 max-w-3xl mx-auto"
         >
             <h2 className="text-2xl font-extrabold mb-4 text-purple-700">{title}</h2>
@@ -32,13 +33,7 @@ function Step({ number, title, info, link, input, setInput, onNext, onBack, chil
                     {info}
                 </div>
             )}
-            {image && (
-                <img
-                    src={image}
-                    alt="Welkom Meme"
-                    className="mx-auto rounded-lg shadow-lg"
-                />
-            )}
+
 
             {link && (
                 <a
@@ -49,6 +44,15 @@ function Step({ number, title, info, link, input, setInput, onNext, onBack, chil
                 >
                     Ga naar AI-tool
                 </a>
+            )}
+            {children}
+
+            {image && (
+                <img
+                    src={image}
+                    alt="Welkom Meme"
+                    className="mx-auto rounded-lg shadow-lg"
+                />
             )}
 
             {input !== undefined && (
@@ -69,15 +73,23 @@ function Step({ number, title, info, link, input, setInput, onNext, onBack, chil
                         Terug
                     </button>
                 )}
-                <button
-                    onClick={onNext}
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-                >
-                    {number === undefined ? "Start" : "Volgende"}
-                </button>
+                {onNext && (
+                    <button
+                        onClick={onNext}
+                        className="self-end bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                    >
+                        Volgende
+                    </button>
+                )}
             </div>
-
-            {children}
+            {onStart && (
+                <button
+                    onClick={onStart}
+                    className="self-end bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                >
+                    Starten!
+                </button>
+            )}
         </motion.div>
     );
 }
@@ -137,7 +149,7 @@ function App() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 p-6">
-            <HelperVideo src="/videos/helper.mp4" />
+            <HelperVideo src={helper1} />
             <h1 className="text-4xl font-extrabold text-center mb-6 text-purple-800">
                 AI Lesmaker
             </h1>
@@ -146,14 +158,14 @@ function App() {
             <AnimatePresence mode="wait">
                 {step === 0 && (
                     <Step
-                        onNext={() => setStep(1)}
+                        onStart={() => setStep(1)}
                         link="https://chat.openai.com"
                         title = "Welkom bij de AI Lesmaker! 🎉"
-                        info="Misschien heb je al kennis van AI, misschien weet je net wat chatGPT is, deze activiteit is voor iedereen! Vandaag ga je door middel van het maken van een lesontwerp kennismaken met verschillende AI-tools. <br></br>Het is wel belangrijk dat je ingelogd ben in chatgpt of een ander AI-tool. Als je copilot op je laptop hebt staan kun je dat gebruiken. Je kunt chatgpt op je telefoon gebruiken of op je laptop, maar zorg dat je ingelogd bent."
+                        info="Misschien heb je al kennis van AI, misschien weet je net wat chatGPT is, deze activiteit is voor iedereen! Vandaag ga je door middel van het maken van een lesontwerp kennismaken met verschillende AI-tools."
                         image = {teacher}
                     >
 
-
+                    <p> <br></br>Het is wel belangrijk dat je ingelogd ben in chatgpt of een ander AI-tool. Als je copilot op je laptop hebt staan kun je dat gebruiken. Je kunt chatgpt op je telefoon gebruiken of op je laptop, maar zorg dat je ingelogd bent.</p>
 
                     </Step>
                 )}

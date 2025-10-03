@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 
+
 export default function HelperVideo({ src }) {
     const [playing, setPlaying] = useState(true);
 
@@ -27,7 +28,7 @@ export default function HelperVideo({ src }) {
             />
             <button
                 onClick={togglePlay}
-                className="absolute bottom-10 right-10 bg-white bg-opacity-70 rounded-full p-1 text-xs"
+                className="absolute bottom-10 right-10 bg-opacity-70 rounded-full p-1 text-xs"
             >
                 {playing ? '❚❚' : '▶'}
             </button>
