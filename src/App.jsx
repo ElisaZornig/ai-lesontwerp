@@ -30,8 +30,7 @@ function App() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <ProgressBar step={currentStep + 1} totalSteps={steps.length} />
+        <div className="mx-auto ">
             <StepComponent nextStep={nextStep} answers={answers} />
         </div>
     );
