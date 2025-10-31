@@ -20,7 +20,7 @@ const steps = [
 ];
 
 function App() {
-    const [currentStep, setCurrentStep] = useState(6);
+    const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState({});
 
     const StepComponent = steps[currentStep];
