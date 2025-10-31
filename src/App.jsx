@@ -7,6 +7,7 @@ import Step4Documents from './steps/Step4Documents';
 import Step5Image from './steps/Step5Image';
 import Step6Song from './steps/Step6Song';
 import Step7Reflection from './steps/Step7Reflection';
+import AppWrapper from "./components/AppWrapper.jsx";
 
 const steps = [
     Step1Intro,
@@ -19,7 +20,7 @@ const steps = [
 ];
 
 function App() {
-    const [currentStep, setCurrentStep] = useState(0);
+    const [currentStep, setCurrentStep] = useState(6);
     const [answers, setAnswers] = useState({});
 
     const StepComponent = steps[currentStep];

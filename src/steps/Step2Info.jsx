@@ -1,5 +1,5 @@
 // src/steps/Step2Info.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AppWrapper from '../components/AppWrapper';
 import ChatWindow from '../components/ChatWindow';
 import ChatBubble from '../components/ChatBubble';
@@ -10,7 +10,7 @@ const rekendoelen = {
     '1/2': ['Getalbegrip', 'Optellen', 'Aftrekken', 'Meten'],
     '3/4': ['Keersommen', 'Deelsommen', 'Breuken', 'Tijd'],
     '5/6': ['Procenten', 'Kommagetallen', 'Meten', 'Breuken'],
-    '7/8': ['Algebra', 'Meetkunde', 'Statistiek', 'Verhoudingen']
+    '7/8': ['Algebra', 'Meetkunde', 'Statistiek', 'Verhoudingen'],
 };
 
 const Step2Info = ({ nextStep, answers = {} }) => {
@@ -18,86 +18,73 @@ const Step2Info = ({ nextStep, answers = {} }) => {
     const [showGroupOptions, setShowGroupOptions] = useState(false);
     const [showGoalOptions, setShowGoalOptions] = useState(false);
     const [awaitingName, setAwaitingName] = useState(false);
-    const [showStep3Button, setShowStep3Button] = useState(false);
+
+    // 👇 Nieuw: we tonen “Ga naar Stap 3” als TypeBar-optie (zoals in Stap 1)
+    const [showStep3Option, setShowStep3Option] = useState(false);
 
     const [group, setGroup] = useState(answers.step2Info?.group || '');
     const [goal, setGoal] = useState(answers.step2Info?.goal || '');
     const [name, setName] = useState(answers.step2Info?.name || '');
 
-    // TypeBar control
     const [inputValue, setInputValue] = useState('');
     const [inputActive, setInputActive] = useState(false);
 
     const ranRef = useRef(false);
 
+    const pushUser = (text) =>
+        setChat((prev) => [
+            ...prev,
+            { fromUser: true, message: text, render: <ChatBubble message={text} fromUser /> },
+        ]);
+
+    // Promise-gebaseerde bot push: resolve pas na uittypen
+    const pushBotAsync = (text) =>
+        new Promise((resolve) => {
+            setChat((prev) => [
+                ...prev,
+                {
+                    fromUser: false,
+                    message: text,
+                    render: <ChatBubble message={text} fromUser={false} onDoneTyping={resolve} />,
+                },
+            ]);
+        });
+
     useEffect(() => {
         if (ranRef.current) return;
         ranRef.current = true;
 
-        const msgs = [
-            "Laten we wat info verzamelen zodat AI een passende som kan maken.",
-            "Voor welke groep sta je?"
-        ];
-
-        const showQueue = async (messages) => {
-            for (let i = 0; i < messages.length; i++) {
-                await new Promise(resolve => {
-                    setChat(prev => [
-                        ...prev,
-                        { fromUser: false, message: messages[i], render: <ChatBubble message={messages[i]} fromUser={false} /> }
-                    ]);
-                    setTimeout(resolve, messages[i].length * 20 + 600);
-                });
-            }
+        (async () => {
+            setInputActive(false);
+            await pushBotAsync('Laten we wat info verzamelen zodat AI een passende som kan maken.');
+            await pushBotAsync('Voor welke groep sta je?');
             setShowGroupOptions(true);
-        };
-
-        showQueue(msgs);
+            setInputActive(true);
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const handleGroupSelect = (g) => {
-        setGroup(g);
-        const userMsg = `Ik sta in groep ${g}`;
-        setChat(prev => [
-            ...prev,
-            { fromUser: true, message: userMsg, render: <ChatBubble message={userMsg} fromUser={true} /> }
-        ]);
-
+    const handleGroupSelect = async (g) => {
+        setInputActive(false);
         setShowGroupOptions(false);
-        setTimeout(() => {
-            const botPrompt = 'Top! Kies nu een rekendoel:';
-            setChat(prev => [
-                ...prev,
-                { fromUser: false, message: botPrompt, render: <ChatBubble message={botPrompt} fromUser={false} /> }
-            ]);
-            setShowGoalOptions(true);
-        }, 600);
+        setGroup(g);
+        pushUser(`Ik sta in groep ${g}`);
+
+        await pushBotAsync('Top! Kies nu een rekendoel:');
+
+        setShowGoalOptions(true);
+        setInputActive(true);
     };
 
     const handleGoalSelect = async (g) => {
-        setGoal(g);
-        const userMsg = `Ik kies rekendoel: ${g}`;
-        setChat(prev => [
-            ...prev,
-            { fromUser: true, message: userMsg, render: <ChatBubble message={userMsg} fromUser={true} /> }
-        ]);
+        setInputActive(false);
         setShowGoalOptions(false);
+        setGoal(g);
+        pushUser(`Ik kies rekendoel: ${g}`);
 
-        const msgs = [
-            "Top, dankjewel!",
-            `We gaan dus een verhaaltjessom maken voor groep ${group} met rekendoel ${g}.`,
-            "Kun je ook je naam doorgeven?"
-        ];
-
-        for (let i = 0; i < msgs.length; i++) {
-            await new Promise(resolve => {
-                setChat(prev => [
-                    ...prev,
-                    { fromUser: false, message: msgs[i], render: <ChatBubble message={msgs[i]} fromUser={false} /> }
-                ]);
-                setTimeout(resolve, msgs[i].length * 20 + 600);
-            });
-        }
+        await pushBotAsync('Top, dankjewel!');
+        await pushBotAsync(`We gaan dus een verhaaltjessom maken voor groep ${group || '?'} met rekendoel ${g}.`);
+        await pushBotAsync('Kun je ook je naam doorgeven?');
 
         setAwaitingName(true);
         setInputActive(true);
@@ -108,66 +95,59 @@ const Step2Info = ({ nextStep, answers = {} }) => {
         if (!finalName) return;
 
         setName(finalName);
-        setChat(prev => [
-            ...prev,
-            { fromUser: true, message: `Mijn naam is ${finalName}`, render: <ChatBubble message={`Mijn naam is ${finalName}`} fromUser={true} /> }
-        ]);
         setInputValue('');
         setInputActive(false);
         setAwaitingName(false);
 
-        // bot reactie daarna
-        await new Promise(resolve => {
-            setTimeout(() => {
-                const msg = "Top dankjewel, je kan nu door naar stap 3.";
-                setChat(prev => [
-                    ...prev,
-                    { fromUser: false, message: msg, render: <ChatBubble message={msg} fromUser={false} /> }
-                ]);
-                resolve();
-            }, 1000);
-        });
+        pushUser(`Mijn naam is ${finalName}`);
 
-        setShowStep3Button(true);
+        await pushBotAsync('Top dankjewel, je kan nu door naar stap 3.');
+
+        // 🎯 Toon de TypeBar-optie “Ga naar Stap 3” (zoals in Stap 1)
+        setShowStep3Option(true);
+        setInputActive(true);
     };
 
-    const typebarOptions = showGroupOptions
-        ? jaargroepen
-        : (showGoalOptions && group ? rekendoelen[group] : []);
+    // 🔧 Bepaal de TypeBar-opties in dezelfde stijl als Stap 1
+    let typebarOptions = [];
+    if (showStep3Option) {
+        typebarOptions = ['Ga naar Stap 3']; // let op: zelfde hoofdlettergebruik als in Stap 1
+    } else if (showGroupOptions) {
+        typebarOptions = jaargroepen;
+    } else if (showGoalOptions && group) {
+        typebarOptions = rekendoelen[group];
+    }
+
+    const canGoNext = Boolean(name && group && goal);
 
     return (
         <AppWrapper progress={55}>
-            <ChatWindow chat={chat} />
+            <div className="flex flex-col h-full">
+                <ChatWindow chat={chat} />
 
-            {/* Step 3 button */}
-            {showStep3Button && (
-                <div className="flex justify-center mt-4">
-                    <button
-                        onClick={() => nextStep({ step2Info: { name, group, goal } })}
-                        className="bg-blue-500 text-white px-6 py-2 rounded-full shadow hover:bg-blue-600 transition"
-                    >
-                        Ga naar stap 3
-                    </button>
-                </div>
-            )}
-
-            <TypeBar
-                options={typebarOptions}
-                onSelect={(opt) => {
-                    if (showGroupOptions && jaargroepen.includes(opt)) {
-                        handleGroupSelect(opt);
-                        return;
-                    }
-                    if (showGoalOptions && group && rekendoelen[group].includes(opt)) {
-                        handleGoalSelect(opt);
-                        return;
-                    }
-                }}
-                inputValue={inputValue}
-                onInputChange={setInputValue}
-                inputActive={inputActive}
-                onSubmitInput={submitName}
-            />
+                <TypeBar
+                    options={typebarOptions}
+                    onSelect={(opt) => {
+                        if (opt === 'Ga naar Stap 3') {
+                            if (canGoNext) nextStep({ step2Info: { name, group, goal } });
+                            return;
+                        }
+                        if (showGroupOptions && jaargroepen.includes(opt)) {
+                            handleGroupSelect(opt);
+                            return;
+                        }
+                        if (showGoalOptions && group && rekendoelen[group].includes(opt)) {
+                            handleGoalSelect(opt);
+                            return;
+                        }
+                    }}
+                    inputValue={inputValue}
+                    onInputChange={setInputValue}
+                    // Alleen tijdens naam-invoer wil je vrij kunnen typen
+                    inputActive={inputActive && awaitingName && !showStep3Option}
+                    onSubmitInput={submitName}
+                />
+            </div>
         </AppWrapper>
     );
 };
