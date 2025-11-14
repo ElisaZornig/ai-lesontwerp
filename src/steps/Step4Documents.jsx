@@ -183,7 +183,7 @@ export default function Step4Documents({ nextStep, answers = {} }) {
             pendingPayloadRef.current = {
                 step4Doc: {
                     source: 'Voorbeeld-werkblad (redactiesommen.nl)',
-                    sourceUrl: 'https://www.redactiesommen.nl/werkbladmaken.php',
+                    sourceUrl: 'https://www.123lesidee.nl/index.php/site/links/2258',
                     finalStory: text,
                     lastEdit: new Date().toISOString(),
                     meta: {
